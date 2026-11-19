@@ -1,0 +1,156 @@
+---
+import '../styles/app.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LabelCrop — thermal labels with SKU &amp; description</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <meta
+      name="description"
+      content="Crop Amazon shipping labels from a PDF, review and remove extra pages, and download labels, invoices, or both. Runs entirely in your browser."
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/">
+          <span class="mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <path d="M9 7h6M7 9v6M15 9v6M9 17h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span>LabelCrop</span>
+        </a>
+        <nav class="nav">
+          <span class="chip">Amazon</span>
+          <span class="chip ghost">Easy Ship · Buy Shipping</span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="hero">
+        <p class="eyebrow">Amazon shipping label crop</p>
+        <h1>Crop labels, print SKU with description.</h1>
+        <p class="lede">
+          Drop an Amazon label PDF. Each page is cropped to its label, and the SKU and product description are
+          printed underneath — aligned, wrapped and sized to fit. Review and remove extra pages before rendering.
+          Nothing is uploaded.
+        </p>
+        <ul class="points">
+          <li>Auto-crops to the label, page by page</li>
+          <li>SKU + description block with auto text wrapping</li>
+          <li>Preview and remove extra pages before rendering</li>
+          <li>Download labels, invoices, or both</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <div
+          id="drop"
+          class="drop"
+          role="button"
+          tabindex="0"
+          aria-label="Choose an Amazon label PDF"
+        >
+          <input id="file" type="file" accept="application/pdf,.pdf" multiple hidden />
+          <svg class="drop-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 16V4m0 0L7 9m5-5 5 5" />
+            <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+          </svg>
+          <p class="drop-title">Choose your Amazon label PDF</p>
+          <p class="drop-sub">or drag and drop it here · PDF only · files never leave your device</p>
+        </div>
+
+        <div class="downloads">
+          <div class="downloads-head">
+            <h3>Downloads</h3>
+            <p>Labels always include SKU + description. Invoices stay original, untouched.</p>
+          </div>
+          <div class="download-grid">
+            <button id="labelsPdfBtn" class="download-card primary" type="button" disabled>
+              <span class="download-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              </span>
+              <span class="download-text">
+                <span class="download-title">Labels Only</span>
+                <span class="download-desc">Pages with SKU + description</span>
+              </span>
+            </button>
+            <button id="invoicesPdfBtn" class="download-card" type="button" disabled>
+              <span class="download-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+              </span>
+              <span class="download-text">
+                <span class="download-title">Invoices Only</span>
+                <span class="download-desc">Original invoice pages, unchanged</span>
+              </span>
+            </button>
+            <button id="bothPdfBtn" class="download-card accent" type="button" disabled>
+              <span class="download-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3m8-18h3a2 2 0 0 0 2 2v14a2 2 0 0 0-2 2h-3M12 7v10"/></svg>
+              </span>
+              <span class="download-text">
+                <span class="download-title">Download Both</span>
+                <span class="download-desc">Labels + invoices in original order</span>
+              </span>
+            </button>
+          </div>
+          <div class="downloads-foot">
+            <button id="clearBtn" class="btn ghost" type="button">Clear all</button>
+          </div>
+        </div>
+
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <div id="picker" class="picker" hidden>
+        <div class="picker-backdrop"></div>
+        <div class="picker-panel" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+          <div class="picker-head">
+            <h3 id="pickerTitle">Select pages to render</h3>
+            <p>Uncheck any extra pages you want to skip, then render.</p>
+          </div>
+          <div class="picker-toolbar">
+            <button id="pickerSelectAll" class="btn ghost" type="button">Select all</button>
+            <button id="pickerDeselectAll" class="btn ghost" type="button">Deselect all</button>
+          </div>
+          <div id="pickerGrid" class="picker-grid"></div>
+          <div class="picker-foot">
+            <button id="pickerCancel" class="btn ghost" type="button">Cancel</button>
+            <button id="pickerRender" class="btn primary" type="button">Render selected</button>
+          </div>
+        </div>
+      </div>
+
+      <section id="results" hidden>
+        <div class="results-head">
+          <h2>Labels</h2>
+          <p id="summary" class="summary"></p>
+        </div>
+        <div id="grid" class="grid"></div>
+        <p class="note">
+          Each card is exactly what prints at 300 dpi. In the print dialog pick your thermal printer, paper size matching
+          your labels, margins none, scale 100% (turn off “Fit to page”).
+        </p>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Runs entirely in your browser — your labels are never uploaded.</span>
+      <span class="foot-sep">·</span>
+      <span>LabelCrop</span>
+    </footer>
+
+
+    <script>
+      import '../lib/app';
+    </script>
+  </body>
+</html>
+
